@@ -1,0 +1,3 @@
+[submodule "army"]
+	path = army
+	url = https://github.com/Henderson-D/army.git
