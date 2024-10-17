@@ -4,57 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Running Times Tracker</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to the CSS file -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Running Times Tracker</h1>
-        <form id="runForm">
-            <div class="form-group">
-                <label for="runningTime">Running Time (minutes):</label>
-                <input type="number" id="runningTime" required>
-            </div>
+    <h1>Running Times Tracker</h1>
 
-            <div class="form-group">
-                <label for="lengthOfRun">Length of Run (miles):</label>
-                <input type="number" id="lengthOfRun" required>
-            </div>
+    <form id="running-time-form">
+        <input type="text" name="date" placeholder="Date" required>
+        <input type="text" name="runner" placeholder="Runner Name" required>
+        <input type="number" name="runningTime" placeholder="Running Time (minutes)" required>
+        <input type="number" name="lengthOfRun" placeholder="Length of Run (miles)" required>
+        <button type="submit">Submit</button>
+    </form>
 
-            <fieldset>
-                <legend>Select Runner:</legend>
-                <label>
-                    <input type="radio" name="runner" value="SPC Klingle" required>
-                    SPC Klingle
-                </label>
-                <label>
-                    <input type="radio" name="runner" value="PFC Griffin">
-                    PFC Griffin
-                </label>
-                <label>
-                    <input type="radio" name="runner" value="SGT Henderson">
-                    SGT Henderson
-                </label>
-            </fieldset>
+    <div id="running-times"></div>
 
-            <button type="submit" class="submit-button">Submit</button>
-        </form>
-
-        <h2>Previous Running Times</h2>
-        <table id="timesTable">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Runner</th>
-                    <th>Running Time (min)</th>
-                    <th>Length of Run (miles)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Data will be populated here -->
-            </tbody>
-        </table>
-    </div>
-
-    <script src="script.js"></script> <!-- Link to the JavaScript file -->
+    <script src="script.js"></script>
 </body>
 </html>

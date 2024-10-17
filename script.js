@@ -1,63 +1,73 @@
-document.getElementById('runForm').addEventListener('submit', function(event) {
-  event.preventDefault(); // Prevent form submission
+// URL of your deployed backend
+const BACKEND_URL = 'https://3sq.netlify.app/'; // Change this to your actual backend URL
 
-  // Get form values
-  const runningTime = document.getElementById('runningTime').value;
-  const lengthOfRun = document.getElementById('lengthOfRun').value;
-  const runner = document.querySelector('input[name="runner"]:checked').value;
-
-  // Get current date
-  const currentDate = new Date().toLocaleDateString();
-
-  // Create a new row for the table
-  const tableRow = `<tr>
-                      <td>${currentDate}</td>
-                      <td>${runner}</td>
-                      <td>${runningTime}</td>
-                      <td>${lengthOfRun}</td>
-                    </tr>`;
-
-  // Append new row to the table
-  document.querySelector('#timesTable tbody').insertAdjacentHTML('afterbegin', tableRow);
-
-  // Send data to the server
-  fetch('http://localhost:5000/api/running-times', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-          date: currentDate,
-          runner: runner,
-          runningTime: runningTime,
-          lengthOfRun: lengthOfRun,
-      }),
-  })
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error('Error:', error));
-
-  // Reset form
-  this.reset();
-});
-
-// Function to fetch running times from the server
-function fetchRunningTimes() {
-  fetch('http://localhost:5000/api/running-times')
-      .then(response => response.json())
-      .then(data => {
-          data.forEach(time => {
-              const tableRow = `<tr>
-                                  <td>${time.date}</td>
-                                  <td>${time.runner}</td>
-                                  <td>${time.runningTime}</td>
-                                  <td>${time.lengthOfRun}</td>
-                                </tr>`;
-              document.querySelector('#timesTable tbody').insertAdjacentHTML('afterbegin', tableRow);
-          });
-      })
-      .catch(error => console.error('Error:', error));
+// Fetch running times from the backend
+async function fetchRunningTimes() {
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/running-times`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        displayRunningTimes(data); // Call function to display the data
+    } catch (error) {
+        console.error('Error fetching running times:', error);
+        document.getElementById('error').innerText = 'Failed to load running times.';
+    }
 }
 
-// Fetch running times on page load
-fetchRunningTimes();
+// Save a new running time to the backend
+async function saveRunningTime(runningTimeData) {
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/running-times`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(runningTimeData),
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const result = await response.json();
+        console.log(result); // Log the response from the server
+        fetchRunningTimes(); // Refresh the displayed running times
+    } catch (error) {
+        console.error('Error saving running time:', error);
+        document.getElementById('error').innerText = 'Failed to save running time.';
+    }
+}
+
+// Display running times on the page
+function displayRunningTimes(times) {
+    const runningTimesList = document.getElementById('running-times-list');
+    runningTimesList.innerHTML = ''; // Clear previous entries
+
+    times.forEach(time => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${time.date} - ${time.runner}: ${time.runningTime} minutes for ${time.lengthOfRun} km`;
+        runningTimesList.appendChild(listItem);
+    });
+}
+
+// Handle form submission to save a new running time
+document.getElementById('running-time-form').addEventListener('submit', (event) => {
+    event.preventDefault(); // Prevent page reload
+
+    const date = document.getElementById('date').value;
+    const runner = document.getElementById('runner').value;
+    const runningTime = parseFloat(document.getElementById('running-time').value);
+    const lengthOfRun = parseFloat(document.getElementById('length-of-run').value);
+
+    // Validate inputs
+    if (!date || !runner || isNaN(runningTime) || isNaN(lengthOfRun)) {
+        document.getElementById('error').innerText = 'Please fill in all fields correctly.';
+        return;
+    }
+
+    const newRunningTime = { date, runner, runningTime, lengthOfRun };
+    saveRunningTime(newRunningTime);
+});
+
+// Call fetchRunningTimes when the page loads
+document.addEventListener('DOMContentLoaded', fetchRunningTimes);

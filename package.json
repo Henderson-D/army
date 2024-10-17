@@ -1,10 +1,25 @@
 {
+  "name": "army",
+  "version": "1.0.0",
+  "description": "A simple application for tracking running times.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
     "express": "^4.21.1",
-    "mongodb": "^6.9.0",
     "mongoose": "^8.7.1"
-  }
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Henderson-D/army.git"
+  },
+  "keywords": ["running", "tracker"],
+  "author": "Your Name",
+  "license": "MIT"
 }
