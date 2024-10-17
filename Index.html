@@ -5,69 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Running Times Tracker</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #4CAF50;
-        }
-        form {
-            background-color: #fff;
-            border-radius: 5px;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            margin: 20px auto;
-        }
-        input {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 10px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #running-times {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 10px;
-            background-color: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-    </style>
 </head>
 <body>
     <h1>Running Times Tracker</h1>
 
     <form id="running-time-form">
-        <input type="text" name="date" placeholder="Date" required>
-        <input type="text" name="runner" placeholder="Runner Name" required>
-        <input type="number" name="runningTime" placeholder="Running Time (minutes)" required>
-        <input type="number" name="lengthOfRun" placeholder="Length of Run (miles)" required>
+        <input type="text" id="date" name="date" placeholder="Date" required>
+        <input type="text" id="runner" name="runner" placeholder="Runner Name" required>
+        <input type="number" id="running-time" name="runningTime" placeholder="Running Time (minutes)" required>
+        <input type="number" id="length-of-run" name="lengthOfRun" placeholder="Length of Run (miles)" required>
         <button type="submit">Submit</button>
     </form>
 
-    <div id="running-times"></div>
+    <div id="error" style="color: red;"></div>
+    <ul id="running-times-list"></ul>
 
-    <script src="script.js"></script>
+    <script>
+        // URL of your deployed backend
+        const BACKEND_URL = 'https://3sq.netlify.app/'; // Change this to your actual backend URL
+
+        // Fetch running times from the backend
+        async function fetchRunningTimes() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/running-times`);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                displayRunningTimes(data); // Call function to display the data
+            } catch (error) {
+                console.error('Error fetching running times:', error);
+                document.getElementById('error').innerText = 'Failed to load running times.';
+            }
+        }
+
+        // Save a new running time to the backend
+        async function saveRunningTime(runningTimeData) {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/running-times`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(runningTimeData),
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const result = await response.json();
+                console.log(result); // Log the response from the server
+                fetchRunningTimes(); // Refresh the displayed running times
+            } catch (error) {
+                console.error('Error saving running time:', error);
+                document.getElementById('error').innerText = 'Failed to save running time.';
+            }
+        }
+
+        // Display running times on the page
+        function displayRunningTimes(times) {
+            const runningTimesList = document.getElementById('running-times-list');
+            runningTimesList.innerHTML = ''; // Clear previous entries
+
+            times.forEach(time => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${time.date} - ${time.runner}: ${time.runningTime} minutes for ${time.lengthOfRun} miles`;
+                runningTimesList.appendChild(listItem);
+            });
+        }
+
+        // Handle form submission to save a new running time
+        document.getElementById('running-time-form').addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent page reload
+
+            const date = document.getElementById('date').value;
+            const runner = document.getElementById('runner').value;
+            const runningTime = parseFloat(document.getElementById('running-time').value);
+            const lengthOfRun = parseFloat(document.getElementById('length-of-run').value);
+
+            // Validate inputs
+            if (!date || !runner || isNaN(runningTime) || isNaN(lengthOfRun)) {
+                document.getElementById('error').innerText = 'Please fill in all fields correctly.';
+                return;
+            }
+
+            const newRunningTime = { date, runner, runningTime, lengthOfRun };
+            saveRunningTime(newRunningTime);
+        });
+
+        // Call fetchRunningTimes when the page loads
+        document.addEventListener('DOMContentLoaded', fetchRunningTimes);
+    </script>
 </body>
 </html>
