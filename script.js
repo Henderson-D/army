@@ -1,5 +1,5 @@
 // URL of your deployed backend
-const BACKEND_URL = 'https://3sq.netlify.app/'; // Change this to your actual backend URL
+const BACKEND_URL = 'https://army-production.up.railway.app';
 
 // Fetch running times from the backend
 async function fetchRunningTimes() {
